@@ -1,0 +1,67 @@
+<?php 
+session_start(); 
+include "db_conn.php";
+
+if (isset($_POST['uname']) && isset($_POST['password'])) 
+{
+
+	function validate($data){
+       $data = trim($data);
+	   $data = stripslashes($data);
+	   $data = htmlspecialchars($data);
+	   return $data;
+	}
+
+	$uname = validate($_POST['uname']);
+	$pass = validate($_POST['password']);
+
+	if (empty($uname)) 
+	{
+		header("Location: index.php?error=User Name is required");
+	    exit();
+	}
+	 if(empty($pass))
+	 {
+        header("Location: index.php?error=Password is required");
+	    exit();
+	}
+	else
+	{
+		$sql = "SELECT * FROM login WHERE UserName='$uname' AND password='$pass'";
+
+		$result = mysqli_query($conn, $sql);
+		$row = mysqli_fetch_assoc($result);
+
+		if (mysqli_num_rows($result) === 1) 
+		{		
+			if($row['roles'] == "HR")
+			{
+				header("Location: hrmanager.html");				
+				exit();
+			}
+			else if($row['roles'] == "CEO") 
+			{
+				header("Location: ceo.html");				
+				exit();
+			}
+			else
+			{
+				header("Location: receptionist.html");				
+				exit();
+			}	        			
+		}
+		else
+		{
+			if ($row['UserName'] == $uname)
+			{
+				header("Location: index.php?error=Incorect password");
+				exit();
+			} 					        
+		}
+	}	
+}
+else
+{
+	header("Location: home.php");
+	exit();
+}
